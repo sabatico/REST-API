@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
@@ -11,6 +12,8 @@ blp = Blueprint("tags", __name__, description="Operation on tags")
 
 @blp.route("/store/<int:store_id>/tag")
 class TagList(MethodView):
+    
+    @jwt_required()
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
     def post(self, validated_tag_data, store_id):
@@ -43,7 +46,8 @@ class TagList(MethodView):
 @blp.route("/item/<int:item_id>/tag/<int:tag_id>")
 class LingTagsToItem(MethodView):
     """Add or Removes a row in 'items_tags' AND in 'items' tables"""
-
+    
+    @jwt_required()
     @blp.response(201, TagSchema)
     def post(self, item_id, tag_id):
         # retireve item with item_id from Items table
@@ -62,6 +66,7 @@ class LingTagsToItem(MethodView):
 
         return tag
 
+    @jwt_required()
     @blp.response(201, TagAndItemSchema)
     def delete(self, item_id, tag_id):
         # retireve item with item_id from Items table
@@ -82,6 +87,8 @@ class LingTagsToItem(MethodView):
 
 @blp.route("/item/<string:item_id>/tag/<string:tag_id>")
 class LinkTagsToItem(MethodView):
+    
+    @jwt_required()
     @blp.response(201, TagSchema)
     def post(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
@@ -97,6 +104,7 @@ class LinkTagsToItem(MethodView):
 
         return tag
 
+    @jwt_required()
     @blp.response(200, TagAndItemSchema)
     def delete(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
@@ -114,9 +122,6 @@ class LinkTagsToItem(MethodView):
 
 
 
-
-
-
 @blp.route("/tag/<int:tag_id>")
 class Tag(MethodView):
     @blp.response(201, TagSchema)
@@ -124,6 +129,7 @@ class Tag(MethodView):
         tag = TagModel.query.get_or_404(tag_id)
         return tag
 
+    @jwt_required()
     @blp.response(202, description="Deletes tag if no item is tagged with it")
     @blp.alt_response(404, description="Tag not found")
     @blp.alt_response(400, description="Returned when the tag is assigned to an item a nd can not be deleted")

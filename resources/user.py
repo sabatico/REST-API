@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import create_access_token, jwt_required
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -14,7 +15,6 @@ class UserRegister(MethodView):
     @blp.arguments(UserSchema)
     @blp.response(201,UserSchema)
     def post(self,validated_user_data):
-        print(validated_user_data)
         user = UserModel(
             username = validated_user_data["username"],
             password = pbkdf2_sha256.hash(validated_user_data["password"])
@@ -33,6 +33,23 @@ class UserRegister(MethodView):
 
         return {"message": "User added successfully"},201
 
+
+@blp.route("/login")
+class UserLogin(MethodView):
+    @blp.arguments(UserSchema)
+    def post(self,validated_user_data):
+        user = UserModel.query.filter(
+            UserModel.username == validated_user_data['username']
+            ).first()
+        
+        if user and  pbkdf2_sha256.verify(validated_user_data['password'],user.password):
+            #creates an access token that contains USER ID for further identification
+            access_token = create_access_token(identity=user.id)
+            return {"access_token": access_token}
+        
+        return {"message": "bad password or nonexisting user"}, 500
+
+
 @blp.route("/users")
 class UserList(MethodView):
     @blp.response(200, UserSchema(many=True))
@@ -48,6 +65,7 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
     
+    @jwt_required(refresh=True)
     def delete(self, user_id):
         user = UserModel.query.get_or_404(user_id)
       

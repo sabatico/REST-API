@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -13,6 +14,7 @@ blp = Blueprint("items", __name__, description="Operation on items")
 
 @blp.route("/item/<int:item_id>")
 class Item(MethodView):
+    @jwt_required()
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     def put(self, validated_item_data, item_id):
@@ -35,7 +37,8 @@ class Item(MethodView):
         db.session.commit()
         
         return item
-
+    
+    @jwt_required()
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
         
@@ -52,9 +55,11 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
+    @jwt_required()
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, validated_item_data):
+        """ creates an item in a store"""
         item = ItemModel(**validated_item_data)
 
         try:
@@ -67,5 +72,6 @@ class ItemList(MethodView):
     
     @blp.response(200, ItemSchema(many=True))
     def get(self):
+        """ gets all items from all stores"""
         item = ItemModel.query.all()
         return item
