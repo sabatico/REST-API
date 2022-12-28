@@ -1,0 +1,12 @@
+.pytest_cache/
+.vscode/
+.docker
+.venv/
+__pycache__/
+models/__pycache__/
+resources/__pycache__/
+tests/__pycache__/
+.env
+.flaskenv
+REST API.code-workspace
+test.py
