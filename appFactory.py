@@ -2,19 +2,16 @@ import os as os
 
 from flask import Flask
 
-from flask_smorest import Api
-
-from db import db
+import apiFactory as apiFactory
 import jwtFactory as jwtFactory
-from resources.item import blp as ItemBlueprint
-from resources.store import blp as StoreBlueprint
-from resources.tag import blp as TagBlueprint
-from resources.user import blp as UserBlueprint
+import sqlFactory as sqlFactory
+
 
 # below is like models.__init__ ( we have the 2 import lines in __init__.py inside models, these will be imported automatically here)
 
 
 def create_app(db_url=None):
+    # INIT APP
     app = Flask(__name__)
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
@@ -23,34 +20,24 @@ def create_app(db_url=None):
     app.config["OPENAPI_VERSION"] = "3.0.3"
     app.config["OPENAPI_URL_PREFIX"] = "/"
 
-    # api documentation app config
+    # API configs
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # initialises sqlalchemy and connects to our app
-    db.init_app(app)
-
-    # this will always run after the app has started, but right before first request ( triggered automatically)
-    @app.before_first_request
-    def create_tables():
-        db.create_all()
-
-    # initiate JWT manager
+    # JWT configs
     app.config["JWT_SECRET_KEY"] = os.environ.get("GWT_SECRET_KEY")
-    jwt = jwtFactory.create_jwt(app)
 
-
-
-
-    # initiate api
-    api = Api(app)
-
-    api.register_blueprint(StoreBlueprint)
-    api.register_blueprint(ItemBlueprint)
-    api.register_blueprint(TagBlueprint)
-    api.register_blueprint(UserBlueprint)
+    # INIT  sqlalchemy and migrate
+    sqlFactory.initialize_DB(app)
+    
+    
+    # INIT JWT manager
+    jwtFactory.initialyze_JWT(app)
+    # INIT API
+    apiFactory.initialyze_API(app)
+    
 
     return app

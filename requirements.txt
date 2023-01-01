@@ -5,4 +5,5 @@ jsonschema
 pytest
 flask-sqlalchemy
 flask-jwt-extended
+flask-migrate
 passlib
