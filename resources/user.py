@@ -1,5 +1,5 @@
 from flask.views import MethodView
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required, create_refresh_token, get_jwt_identity
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -42,11 +42,28 @@ class UserLogin(MethodView):
 
         if user and pbkdf2_sha256.verify(validated_user_data["password"], user.password):
             # creates an access token that contains USER ID for further identification
-            access_token = create_access_token(identity=user.id)
-            return {"access_token": access_token}
+            access_token = create_access_token(identity=user.id, fresh=True)
+            refresh_token = create_refresh_token(identity=user.id)
+            return {"access_token": access_token, "refresh_token": refresh_token}
 
         return {"message": "bad password or nonexisting user"}, 500
 
+
+@blp.route("/refresh")
+class UserTokenRefresh(MethodView):
+    #specify that only refresh_token is needed for next steps
+    @jwt_required(refresh=True)
+    
+    def post(self):
+        #get user identity from token
+        current_user = get_jwt_identity()
+        #create new access token with NON-fresh status
+        new_token = create_access_token(identity=current_user, fresh=False)
+        
+        #To only permit token refresh to be done 1 time, we need to add token JTI in blocklist now, as example
+        
+      
+        
 
 @blp.route("/logout")
 class UserLogout(MethodView):
