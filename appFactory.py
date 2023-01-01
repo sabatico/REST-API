@@ -2,15 +2,10 @@ import os as os
 
 from flask import Flask
 
-import apiFactory as apiFactory
-import jwtFactory as jwtFactory
-import sqlFactory as sqlFactory
-
-
 # below is like models.__init__ ( we have the 2 import lines in __init__.py inside models, these will be imported automatically here)
 
 
-def create_app(db_url=None):
+def initialize_APP(db_url=None):
     # INIT APP
     app = Flask(__name__)
 
@@ -29,15 +24,5 @@ def create_app(db_url=None):
 
     # JWT configs
     app.config["JWT_SECRET_KEY"] = os.environ.get("GWT_SECRET_KEY")
-
-    # INIT  sqlalchemy and migrate
-    sqlFactory.initialize_DB(app)
-    
-    
-    # INIT JWT manager
-    jwtFactory.initialyze_JWT(app)
-    # INIT API
-    apiFactory.initialyze_API(app)
-    
 
     return app

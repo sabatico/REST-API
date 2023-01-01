@@ -1,4 +1,4 @@
-from db import db
+from sqlFactory import db
 
 class ItemModel(db.Model):
     __tablename__ = 'items'

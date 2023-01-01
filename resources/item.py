@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt
 from sqlalchemy.exc import SQLAlchemyError
 
 
-from db import db
+from sqlFactory import db
 from models import ItemModel
 from schemas import ItemSchema, ItemUpdateSchema
 

@@ -4,7 +4,7 @@ from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from db import db
+from sqlFactory import db
 from models import BlocklistModel, UserModel
 from schemas import UserSchema
 

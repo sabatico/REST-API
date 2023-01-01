@@ -3,7 +3,7 @@ from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
-from db import db
+from sqlFactory import db
 from models import ItemModel, StoreModel, TagModel
 from schemas import TagAndItemSchema, TagSchema
 

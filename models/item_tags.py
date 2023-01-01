@@ -1,6 +1,6 @@
 """a table model of 3 column,s it makes the relation between a tagIDs and itemIDs """
 
-from db import db
+from sqlFactory import db
 
 
 class ItemsTags(db.Model):

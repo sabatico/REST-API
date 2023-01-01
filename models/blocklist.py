@@ -1,4 +1,4 @@
-from db import db
+from sqlFactory import db
 
 
 class BlocklistModel(db.Model):
