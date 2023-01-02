@@ -1,0 +1,6 @@
+The app uses local sqlite, storage folder /instance
+
+These need to run for the db to be initialized:
+flask db init
+flask db migrate
+flask db upgrade

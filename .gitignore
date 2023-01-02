@@ -10,3 +10,4 @@ tests/__pycache__/
 .flaskenv
 REST API.code-workspace
 test.py
+instance/data.db
