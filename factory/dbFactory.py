@@ -15,5 +15,5 @@ def initialize_DB(app):
 
 
 def initialyze_MIGRATE(app, db):
-    migrate = Migrate(app, db)
+    migrate = Migrate(app, db, render_as_batch=True)
     return migrate

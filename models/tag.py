@@ -1,4 +1,4 @@
-from sqlFactory import db
+from factory.dbFactory import db
 
 
 class TagModel(db.Model):

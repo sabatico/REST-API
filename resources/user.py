@@ -1,23 +1,25 @@
 from flask.views import MethodView
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required, create_refresh_token, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, jwt_required
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from sqlFactory import db
 from models import BlocklistModel, UserModel
-from schemas import UserSchema
+from schemas import UserRegisterSchema, UserSchema
+from factory.dbFactory import db
 
 blp = Blueprint("users", __name__, description="Operation on users")
 
 
 @blp.route("/register")
 class UserRegister(MethodView):
-    @blp.arguments(UserSchema)
-    @blp.response(201, UserSchema)
+    @blp.arguments(UserRegisterSchema)
+    @blp.response(201, UserRegisterSchema)
     def post(self, validated_user_data):
         user = UserModel(
-            username=validated_user_data["username"], password=pbkdf2_sha256.hash(validated_user_data["password"])
+            username=validated_user_data["username"],
+            email=validated_user_data["email"],
+            password=pbkdf2_sha256.hash(validated_user_data["password"]),
         )
 
         try:
@@ -51,19 +53,16 @@ class UserLogin(MethodView):
 
 @blp.route("/refresh")
 class UserTokenRefresh(MethodView):
-    #specify that only refresh_token is needed for next steps
+    # specify that only refresh_token is needed for next steps
     @jwt_required(refresh=True)
-    
     def post(self):
-        #get user identity from token
+        # get user identity from token
         current_user = get_jwt_identity()
-        #create new access token with NON-fresh status
+        # create new access token with NON-fresh status
         new_token = create_access_token(identity=current_user, fresh=False)
-        
-        #To only permit token refresh to be done 1 time, we need to add token JTI in blocklist now, as example
-        
-      
-        
+
+        # To only permit token refresh to be done 1 time, we need to add token JTI in blocklist now, as example
+
 
 @blp.route("/logout")
 class UserLogout(MethodView):
@@ -71,8 +70,7 @@ class UserLogout(MethodView):
     def post(self):
         # "get_gwt()['jti'] -> this extracts the token ID from the whole token"
         token = BlocklistModel(jti=get_jwt()["jti"])
-        
-        
+
         try:
             db.session.add(token)
             db.session.commit()

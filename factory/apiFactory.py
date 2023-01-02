@@ -5,7 +5,8 @@ from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
 from resources.user import blp as UserBlueprint
 
-def initialyze_API(app):
+
+def initialize_API(app):
     api = Api(app)
 
     api.register_blueprint(StoreBlueprint)

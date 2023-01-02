@@ -1,11 +1,10 @@
 from flask import Flask, request
 from flask.views import MethodView
+from flask_jwt_extended import get_jwt, jwt_required
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required, get_jwt
 from sqlalchemy.exc import SQLAlchemyError
 
-
-from sqlFactory import db
+from factory.dbFactory import db
 from models import ItemModel
 from schemas import ItemSchema, ItemUpdateSchema
 
@@ -18,39 +17,38 @@ class Item(MethodView):
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     def put(self, validated_item_data, item_id):
-        '''PUT expects to UPDATE if already exists
-        or CREATE if item is not existent'''
-        
-        #use get() withotu 404 check
+        """PUT expects to UPDATE if already exists
+        or CREATE if item is not existent"""
+
+        # use get() withotu 404 check
         item = ItemModel.query.get(item_id)
-        
-        #if item exists - update, else - create
+
+        # if item exists - update, else - create
         if item:
             item.price = validated_item_data["price"]
             item.name = validated_item_data["name"]
-                        
+
         else:
-            #the 'id' of the item will be taken from put query
-            item = ItemModel(id=item_id,**validated_item_data)
-        
+            # the 'id' of the item will be taken from put query
+            item = ItemModel(id=item_id, **validated_item_data)
+
         db.session.add(item)
         db.session.commit()
-        
+
         return item
-    
+
     @jwt_required()
     def delete(self, item_id):
-        #below check the is_admin token CLAM , if its True -> permit deleting, else -> abort
+        # below check the is_admin token CLAM , if its True -> permit deleting, else -> abort
         jwt = get_jwt()
-        if not jwt.get('is_admin'):
-            abort(401,message="Admin privilege required")
-            
+        if not jwt.get("is_admin"):
+            abort(401, message="Admin privilege required")
+
         item = ItemModel.query.get_or_404(item_id)
-        
+
         db.session.delete(item)
         db.session.commit()
-        
-        
+
         return {"message": "Item deleted successfully"}
 
     @blp.response(200, ItemSchema)
@@ -58,13 +56,14 @@ class Item(MethodView):
         item = ItemModel.query.get_or_404(item_id)
         return item
 
+
 @blp.route("/item")
 class ItemList(MethodView):
     @jwt_required()
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, validated_item_data):
-        """ creates an item in a store"""
+        """creates an item in a store"""
         item = ItemModel(**validated_item_data)
 
         try:
@@ -74,9 +73,9 @@ class ItemList(MethodView):
             abort(500, message="An error occurred while inserting the item")
 
         return item
-    
+
     @blp.response(200, ItemSchema(many=True))
     def get(self):
-        """ gets all items from all stores"""
+        """gets all items from all stores"""
         item = ItemModel.query.all()
         return item

@@ -1,9 +1,10 @@
-from sqlFactory import db
+from factory.dbFactory import db
+
 
 class UserModel(db.Model):
-    __tablename__ = 'users'
-    
+    __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True,nullable=False)
-    password = db.Column(db.String, nullable=False)
-    
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String, unique=True, nullable=True)
+    password = db.Column(db.String(256), nullable=False)

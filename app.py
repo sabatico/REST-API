@@ -2,10 +2,10 @@ import os as os
 
 from dotenv import load_dotenv
 
-import apiFactory as apiFactory
-import appFactory as appFactory
-import jwtFactory as jwtFactory
-import sqlFactory as sqlFactory
+import factory.apiFactory as apiFactory
+import factory.appFactory as appFactory
+import factory.jwtFactory as jwtFactory
+import factory.dbFactory as dbFactory
 
 load_dotenv()
 
@@ -13,8 +13,8 @@ load_dotenv()
 app = appFactory.initialize_APP()
 
 # INIT  sqlalchemy and migrate
-sqlFactory.initialize_DB(app)
+dbFactory.initialize_DB(app)
 # INIT JWT manager
-jwtFactory.initialyze_JWT(app)
+jwtFactory.initialize_JWT(app)
 # INIT API
-apiFactory.initialyze_API(app)
+apiFactory.initialize_API(app)

@@ -4,7 +4,7 @@ from flask_jwt_extended import JWTManager
 from models import BlocklistModel
 
 
-def initialyze_JWT(app):
+def initialize_JWT(app):
     jwt = JWTManager(app)
 
     @jwt.token_in_blocklist_loader

@@ -5,7 +5,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
 from models import StoreModel
-from sqlFactory import db
+from factory.dbFactory import db
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 import schemas as schemas
