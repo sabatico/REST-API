@@ -11,3 +11,5 @@ tests/__pycache__/
 REST API.code-workspace
 test.py
 instance/data.db
+.DS_Store
+*.pyc
